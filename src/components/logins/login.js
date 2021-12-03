@@ -3,7 +3,9 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import Header from "../layouts/header";
-
+import { useDispatch, useSelector } from 'react-redux';
+import {login} from '../../actions/auth';
+import  {Redirect}  from 'react-router-dom';
 const Require = (value) => {
     if (!value) {
         return (
@@ -18,16 +20,20 @@ const Login = (props) => {
     const form = useRef();
     const checkBtn = useRef();
 
-    const [userid, setUserid] = useState("");
-    const [password, setPassword] = useState("");
+    const [userId, setUserId] = useState("");
+    const [passWord, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    const onChangeUserid = (e) => {
-        const userid = e.target.value;
-        setUserid(userid);
+    const disPatch = useDispatch();
+
+    const { isLoggedIn } = useSelector((state) => state.auth);
+  
+    const onChangeUserId = (e) => {
+        const userId = e.target.value;
+        setUserId(userId);
     };
-    const onChangePassword = (e) => {
-        const password = e.target.value;
-        setPassword(password);
+    const onChangePassWord = (e) => {
+        const passWord = e.target.value;
+        setPassword(passWord);
     };
     const handleLogin = (e) => {
         e.preventDefault();
@@ -35,11 +41,23 @@ const Login = (props) => {
         setLoading(true);
         form.current.validateAll();
         if (checkBtn.current.context._errors.length === 0) {
-            console.log("asd");
+            disPatch(login(userId, passWord))
+                .then(() => {
+                    props.history.push('/');
+                    window.location.reload();
+                })
+                .catch(() => {
+                    setLoading(false);
+                })
+
         } else {
             setLoading(false);
         }
     };
+    if (isLoggedIn) {
+        return <Redirect to="/" />;
+    }
+
     return (
         <div className="container ">
             <Header />
@@ -49,11 +67,11 @@ const Login = (props) => {
 
                         <div className="form-group">
                             <label htmlFor="userid">User ID</label>
-                            <Input type="text" name="userid" value={userid} className="form-control" onChange={onChangeUserid} validations={[Require]} />
+                            <Input type="text" name="userid" value={userId} className="form-control" onChange={onChangeUserId} validations={[Require]} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="password">Password</label>
-                            <Input type="password" name="password" value={password} className="form-control" onChange={onChangePassword} validations={[Require]} />
+                            <Input type="password" name="password" value={passWord} className="form-control" onChange={onChangePassWord} validations={[Require]} />
                         </div>
                         <div className="form-group">
                             <button className="btn btn-primary btn-block" disabled={loading}>

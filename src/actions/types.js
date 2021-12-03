@@ -1,0 +1,18 @@
+export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
+export const LOGIN_FAILED = "LOGIN_FAILED";
+export const LOGOUT ="LOGOUT";
+
+
+export const SET_MESSAGE = 'SET_MESSAGE';
+export const CLEAR_MESSAGE = 'CLEAR_MESSAGE';
+
+//user
+export const GET_USER_SUCCESS = "GET_USER_SUCCESS";
+export const GET_USER_FAILED= "GET_USER_FAILED";
+//fillter user
+
+export const GET_USER_FILLTER_SUCCESS = "GET_USER_FILLTER_SUCCESS";
+export const GET_USER_FILLTER_FAILED= "GET_USER_FILLTER_FAILED";
+// edit user
+export const EDIT_USER_SUCCESS = "EDIT_USER_SUCCESS";
+export const EDIT_USER_FAILED= "EDIT_USER_FAILED";

@@ -1,43 +1,78 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useLayoutEffect } from 'react';
 import Header from './layouts/header';
 import { useSelector, useDispatch } from "react-redux";
-import { Redirect,Link } from 'react-router-dom';
-import {getUserThunks,getUserFillter} from '../thunks/users';
-
+import { Redirect, Link } from 'react-router-dom';
+import * as thunkUser from '../thunks/users';
+import "../App.css";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 3;
-const UsersComponent = () => {
+const UsersComponent = (props) => {
     const dispatch = useDispatch();
     const { user: currentUser } = useSelector((state) => state.auth);
     const { userList } = useSelector((state) => state.users);
-    const [rule,setRule] = useState();
-    const [keyword,setKeyword] =useState();
+    const [rule, setRule] = useState();
+    const [keyword, setKeyword] = useState();
 
-    useEffect(() => {
-        dispatch(getUserThunks({ per_page:DEFAULT_PER_PAGE,page: DEFAULT_PAGE }));
+    useLayoutEffect(() => {
+        dispatch(thunkUser.getUserThunks({ per_page: DEFAULT_PER_PAGE, page: DEFAULT_PAGE }));
     }, []);
 
-    const onChangeRule =(e)=>{
-       const rule = e.target.value;
+    const onChangeRule = (e) => {
+
+        const rule = e.target.value;
         setRule(rule);
-    } 
-    const onChangeKeyword =(e)=>{
+    }
+    const onChangeKeyword = (e) => {
+
         const keyword = e.target.value;
         setKeyword(keyword);
-     } 
-    const onClickSearch =()=>{
-        dispatch(getUserFillter({ rule,keyword }));
+    }
+    const onClickSearch = (e) => {
+
+        dispatch(thunkUser.getUserFillter({ rule, keyword }));
     }
     console.log({ userList });
- 
+
     if (!currentUser) {
         return <Redirect to="/login" />;
     }
 
+    // duplicate user
 
+    const onClickDuplicate = (id) => {
+
+        dispatch(thunkUser.dupUserById({ userId: id }))
+            .then(() => {
+                props.history.push('/');
+                window.location.reload();
+            });
+
+    }
+
+    // unlock user
+    const onClickUnlock = (id) => {
+
+        dispatch(thunkUser.unlockUserById({ userId: id }))
+            .then(() => {
+                props.history.push('/');
+                window.location.reload();
+            });
+
+    }
+    //lock user
+    const onClickLock = (id) => {
+
+        dispatch(thunkUser.lockUserById({ userId: id }))
+            .then(() => {
+                props.history.push('/');
+                window.location.reload();
+            });
+
+    }
     return (
         <div className="container">
+             
             <Header />
             <div className="inline-group">
                 <a href="/list-customer" className="btn btn-primary">List customer</a>
@@ -47,14 +82,14 @@ const UsersComponent = () => {
             <div className="bg-info p-1 ">
                 <p>Filler customer</p>
             </div>
-            <div class="filter mt-3">
-                <div class="row col-md-6">
-                    <div class="col">
+            <div className="filter mt-3">
+                <div className="row col-md-6">
+                    <div className="col">
                         <p>Sales</p>
                     </div>
                     <div className="col">
                         <select id="inputState" name="sales" className="form-control">
-                            <option selected>.Choose..</option>
+                            <option >.Choose..</option>
 
                         </select>
 
@@ -117,20 +152,26 @@ const UsersComponent = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {userList?.data?.map(
-                                            ({ id, name,avatar, phone, adress }, index) => (
+                                        { userList && userList?.data?.map(
+                                            ({ id, name, avatar, phone, adress, status }, index, array) => (
                                                 <tr key={index}>
                                                     <td>{id}</td>
                                                     <td>{name}</td>
-                                                    <td>{avatar}</td>
+                                                    <td > <img className="reponsize" src= {'http://127.0.0.1:8000'+ avatar} alt=""/></td>
                                                     <td>{phone}</td>
                                                     <td>{adress}</td>
                                                     <td>
                                                         <Link to={`/customer/${id}`} className="btn btn-primary">Edit</Link>
-                                                        <button className="btn btn-primary">Duplicate</button>
-                                                        <button className="btn btn-danger">Block</button>
-                                                        </td>
+                                                        <button className="btn btn-primary" onClick={(e) => { (index == array.length - 1) ? (onClickDuplicate(id, true)) : (onClickDuplicate(id, false)) }}>Duplicate</button>
+                                                        {(status === 0 ?
+                                                            (<button className="btn btn-danger" onClick={(e) => { (index == array.length - 1) ? (onClickLock(id, true)) : (onClickLock(id, false)) }}>Block</button>)
+                                                            : (<button className="btn btn-danger" onClick={(e) => { (index == array.length - 1) ? (onClickUnlock(id, true)) : (onClickUnlock(id, false)) }}>Unlock</button>)
+                                                        )}
+
+                                                    </td>
+
                                                 </tr>
+
                                             )
                                         )}
 

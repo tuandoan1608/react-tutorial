@@ -1,26 +1,68 @@
-import {GET_USER_SUCCESS, GET_USER_FAILED,GET_USER_FILLTER_FAILED,GET_USER_FILLTER_SUCCESS,EDIT_USER_FAILED,EDIT_USER_SUCCESS} from './types';
-
+import * as types from './types';
+//get user
 export  const getUserSuccess= (payload)=>({
-    type:GET_USER_SUCCESS,
+    type:types.GET_USER_SUCCESS,
     payload,
 });
+export const getUserFailed =()=>({
+    type:types.GET_USER_FAILED
+});
+//fillTer user
 export  const getUserFillTerSuccess= (payload)=>({
-    type:GET_USER_FILLTER_SUCCESS,
+    type:types.GET_USER_FILLTER_SUCCESS,
     payload,
 });
 
 export const getUserFillTerFailed =()=>({
-    type:GET_USER_FILLTER_FAILED
+    type:types.GET_USER_FILLTER_FAILED
 });
 
-export const getUserFailed =()=>({
-    type:GET_USER_FAILED
-});
-export const edituserSuccess =(payload)=>({
-    type:EDIT_USER_SUCCESS,
+//edit user
+export const editUserSuccess =(payload)=>({
+    type:types.EDIT_USER_SUCCESS,
     payload,
 });
 
-export const edituserFailed =()=>({
-    type:EDIT_USER_FAILED
+export const editUserFailed =()=>({
+    type:types.EDIT_USER_FAILED
+});
+
+// get user id
+export const getUserIdSuccess =(payload)=>({
+    type:types.EDIT_USER_SUCCESS,
+    payload,
+});
+
+export const getUserIdFailed =()=>({
+    type:types.EDIT_USER_FAILED
+});
+
+//duplicate user
+export const dupUserIdSuccess =(payload)=>({
+    type:types.DUP_USER_ID_SUCCESS,
+    payload,
+});
+
+export const dupUserIdFailed =()=>({
+    type:types.DUP_USER_ID_FAILED
+});
+
+// unlock 
+export const unLockUserIdSuccess =(payload)=>({
+    type:types.UNLOCK_USER_ID_SUCCESS,
+    payload,
+});
+
+export const unLockUserIdFailed =()=>({
+    type:types.UNLOCK_USER_ID_FAILED
+});
+// lock
+
+export const lockUserIdSuccess =(payload)=>({
+    type:types.LOCK_USER_ID_SUCCESS,
+    payload,
+});
+
+export const lockUserIdFailed =()=>({
+    type:types.LOCK_USER_ID_FAILED
 });

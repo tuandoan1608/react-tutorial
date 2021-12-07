@@ -36,7 +36,7 @@ const Login = (props) => {
     const disPatch = useDispatch();
     const [loading, setLoading] = useState(false);
     const { isLoggedIn } = useSelector((state) => state.auth);
-    // const { message } = useSelector(state => state.message);
+    const { message } = useSelector(state => state.message);
     const [inputs, setInputs] = useState({
         firstName: "",
         lastName: "",
@@ -75,13 +75,6 @@ const Login = (props) => {
         setLoading(true);
         if (handleValidate(inputs)) {
             disPatch(login(inputs.userId, inputs.passWord))
-                .then(() => {
-                    props.history.push('/');
-
-                })
-                .catch(() => {
-                    setLoading(false);
-                })
         } else {
             setLoading(false);
         }
@@ -134,13 +127,13 @@ const Login = (props) => {
                         {loading && (
                             <CircularProgress size={24} className={classes.buttonProgress} />
                         )}
-                        {/* {message && (
+                        {message && (
                             <div className="form-group">
                                 <div className="alert alert-danger" role="alert">
                                     {message}
                                 </div>
                             </div>
-                        )} */}
+                        )}
                     </form>
                 </div>
             </div>

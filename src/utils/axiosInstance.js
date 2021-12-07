@@ -26,7 +26,11 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (res) => res,
   (err) => {
-   
+    if(err.response.status===401){
+      localStorage.removeItem('user');
+      window.location.href('http://localhost:3000/login');
+      return;
+    }
     return Promise.reject(err);
   }
 );

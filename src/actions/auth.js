@@ -30,6 +30,16 @@ export const login =(userid,password)=>(dispatch)=>{
     )
 
 }
+
+export const loginAction = (username,password) => {
+    return {
+        type: 'LOGIN',
+        payload: {
+            name: username,
+            pass: password
+        }
+    }
+}
 export const logout =()=>(dispatch)=>{
     authService.logout();
     dispatch({

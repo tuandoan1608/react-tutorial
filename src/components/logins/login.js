@@ -1,58 +1,91 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import Header from "../layouts/header";
 import { useDispatch, useSelector } from 'react-redux';
-import {login} from '../../actions/auth';
-import  {Redirect}  from 'react-router-dom';
-const Require = (value) => {
-    if (!value) {
-        return (
-            <div className="alert alert-danger" role="alert">
-                This field is required!
-            </div>
-        )
-    }
-};
+import { login } from '../../actions/auth';
+import { Redirect } from 'react-router-dom';
+import {
+    makeStyles,
+    TextField,
+    Button,
+    CircularProgress,
+} from "@material-ui/core";
 
+const useStyles = makeStyles((theme) => ({
+    root: {
+        "& > *": {
+            margin: theme.spacing(1),
+            width: "50ch",
+        },
+        buttonProgress: {
+            color: "#fff",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            marginTop: -12,
+            marginLeft: -12,
+        },
+    },
+}));
 const Login = (props) => {
     const form = useRef();
     const checkBtn = useRef();
-
-    const [userId, setUserId] = useState("");
-    const [passWord, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
+    const classes = useStyles();
     const disPatch = useDispatch();
-
+    const [loading, setLoading] = useState(false);
     const { isLoggedIn } = useSelector((state) => state.auth);
-  
-    const onChangeUserId = (e) => {
-        const userId = e.target.value;
-        setUserId(userId);
-    };
-    const onChangePassWord = (e) => {
-        const passWord = e.target.value;
-        setPassword(passWord);
-    };
+    // const { message } = useSelector(state => state.message);
+    const [inputs, setInputs] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+    });
+    const [errors, setErrors] = useState({});
+    useEffect(() => {
+        handleValidate(inputs);
+    }, [inputs]);
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInputs((inputs) => ({ ...inputs, [name]: value }));
+    }
+
+
+    function handleValidate(values) {
+        let errors = {};
+        let isValid = true;
+
+        if (!values["userId"]) {
+            isValid = false;
+            errors["userId"] = "Please enter userid.";
+        }
+        if (!values["passWord"]) {
+            isValid = false;
+            errors["passWord"] = "Please enter password";
+        }
+        setErrors(errors);
+        return isValid;
+    }
+
     const handleLogin = (e) => {
         e.preventDefault();
 
         setLoading(true);
-        form.current.validateAll();
-        if (checkBtn.current.context._errors.length === 0) {
-            disPatch(login(userId, passWord))
+        if (handleValidate(inputs)) {
+            disPatch(login(inputs.userId, inputs.passWord))
                 .then(() => {
                     props.history.push('/');
-                    window.location.reload();
+
                 })
                 .catch(() => {
                     setLoading(false);
                 })
-
         } else {
             setLoading(false);
         }
+
     };
     if (isLoggedIn) {
         return <Redirect to="/" />;
@@ -63,26 +96,52 @@ const Login = (props) => {
             <Header />
             <div className="pagelogin">
                 <div className=" formlogin "  >
-                    <Form onSubmit={handleLogin} ref={form} >
+                    <form
+                        className={classes.root}
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "column",
+                        }}
+                        onSubmit={handleLogin}
+                    >
+                        <TextField
+                            type="text"
+                            name="userId"
+                            label="userId"
+                            value={inputs.userId}
+                            onChange={handleChange}
+                            fullWidth
+                        />
 
-                        <div className="form-group">
-                            <label htmlFor="userid">User ID</label>
-                            <Input type="text" name="userid" value={userId} className="form-control" onChange={onChangeUserId} validations={[Require]} />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <Input type="password" name="password" value={passWord} className="form-control" onChange={onChangePassWord} validations={[Require]} />
-                        </div>
-                        <div className="form-group">
-                            <button className="btn btn-primary btn-block" disabled={loading}>
-                                {loading && (
-                                    <span className="spinner-border spinner-border-sm"></span>
-                                )}
-                                <span>Login</span>
-                            </button>
-                        </div>
-                        <CheckButton style={{ display: "none" }} ref={checkBtn} />
-                    </Form >
+                        <TextField
+                            type="password"
+                            name="passWord"
+                            label="passWord"
+                            value={inputs.passWord}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                        <Button
+                            disabled={loading}
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                        >
+                            Submit
+                        </Button>
+                        {loading && (
+                            <CircularProgress size={24} className={classes.buttonProgress} />
+                        )}
+                        {/* {message && (
+                            <div className="form-group">
+                                <div className="alert alert-danger" role="alert">
+                                    {message}
+                                </div>
+                            </div>
+                        )} */}
+                    </form>
                 </div>
             </div>
         </div>

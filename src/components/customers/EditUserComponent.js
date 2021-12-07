@@ -1,61 +1,68 @@
 import react, { useState, useRef, useEffect } from "react";
 import Header from "../layouts/header";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation,Redirect } from "react-router-dom";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { editUsers, getUserById } from '../../thunks/users';
 
 const EditUserComponent = (props) => {
+    const history = useHistory();
     const form = useRef();
     const checkBtn = useRef();
     const dispatch = useDispatch();
     const { pathname } = useLocation();
-
     const userId = pathname.replace("/customer/", "");
-    const { userList } = useSelector((state) => state.users);
-    const [name, setName] = useState();
-    const [phone, setPhone] = useState();
+    const userList = useSelector((state) => state.users?.userList.data);
+    const { user: currentUser } = useSelector((state) => state.auth);
+    const [inputs, setInputs] = useState({
+        name: "",
+        phone: "",
+        adress: "",
+        email: "",
+    });
     const [avatar, setAvatar] = useState();
-    const [adress, setAdress] = useState("");
-    const [email, setEmail] = useState("");
-    const [loading, setLoading] = useState();
-    useEffect(() => {
-        setName(userList?.data?.name);
-        setPhone(userList?.data?.phone);
-        setAvatar(userList?.data?.avatar);
-        setAdress(userList?.data?.adress);
-        setEmail(userList?.data?.email);
-    }, [userList])
-
-    const onChangeName = (e) => setName(e.target.value);
-    const onChangePhone = (e) => setPhone(e.target.value);
-    const onChangeEmail = (e) => setEmail(e.target.value);
     const onChangeAvatar = (e) => {
         if (e.target.files && e.target.files[0]) {
             let avatar = e.target.files[0];
             setAvatar(avatar);
         }
     };
-    const onChangeAdress = (e) => setAdress(e.target.value);
-
-
-
-
+    const [loading, setLoading] = useState();
     useEffect(() => {
         dispatch(getUserById({ id: userId }))
     }, []);
 
-   
+    useEffect(() => {
+        if (userList) {
+            setInputs(userList);
+        }
+    }, [userList]);
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setInputs((inputs) => ({ ...inputs, [name]: value }));
+    }
+
+    console.log(userList);
+
+
+
+
+    // check user login
+    if (!currentUser) {
+        return <Redirect to="/login" />;
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const data = new FormData();
 
-        data.append("name", name);
-        data.append("phone", phone);
-        data.append("email", email);
-        data.append("adress", adress);
+        data.append("name", inputs.name);
+        data.append("phone", inputs.phone);
+        data.append("email", inputs.email);
+        data.append("adress", inputs.adress);
         data.append("avatar", avatar);
         data.append("userId", userId);
         data.append("status", 1);
@@ -63,10 +70,10 @@ const EditUserComponent = (props) => {
         setLoading(true);
         form.current.validateAll();
         if (checkBtn.current.context._errors.length === 0) {
-            dispatch(editUsers({userId, data}))
+            dispatch(editUsers({ userId, data }))
                 .then(() => {
                     props.history.push('/');
-                    window.location.reload();
+
                 })
                 .catch(() => {
                     setLoading(false);
@@ -76,11 +83,11 @@ const EditUserComponent = (props) => {
             setLoading(false);
         }
     };
-   
+
     return (
-      
+
         <div className="container">
-           
+
             <Header />
             <div className="mb-3">
                 <Link to="/" > Home</Link>/
@@ -88,14 +95,12 @@ const EditUserComponent = (props) => {
             </div>
 
             <Form onSubmit={handleSubmit} encType="multipart/form-data" ref={form}  >
-
-
                 <div className="form-group">
                     <label htmlFor="">Name</label>
                     <Input className="form-control"
                         type="text" name="name"
-                        value={name}
-                        onChange={onChangeName} />
+                        value={inputs.name}
+                        onChange={handleChange} />
 
                 </div>
                 <div className="form-group">
@@ -110,24 +115,24 @@ const EditUserComponent = (props) => {
                     <label htmlFor="">Phone</label>
                     <Input className="form-control"
                         type="text" name="phone"
-                        value={phone}
-                        onChange={onChangePhone} />
+                        value={inputs.phone}
+                        onChange={handleChange} />
 
                 </div>
                 <div className="form-group">
                     <label htmlFor="">Email</label>
                     <Input className="form-control"
                         type="text" name="email"
-                        value={email}
-                        onChange={onChangeEmail} />
+                        value={inputs.email}
+                        onChange={handleChange} />
 
                 </div>
                 <div className="form-group">
                     <label htmlFor="">Address</label>
                     <Input className="form-control"
                         type="text" name="adress"
-                        value={adress}
-                        onChange={onChangeAdress} />
+                        value={inputs.adress}
+                        onChange={handleChange} />
 
                 </div>
                 <div className="form-group">

@@ -4,20 +4,19 @@ import { useSelector, useDispatch } from "react-redux";
 import { Redirect, Link } from 'react-router-dom';
 import * as thunkUser from '../thunks/users';
 import "../App.css";
+import * as config from '../configs/config';
 
-const DEFAULT_PAGE = 1;
-const DEFAULT_PER_PAGE = 3;
-const UsersComponent = (props) => {
+const HomePage = (props) => {
     const dispatch = useDispatch();
     const { user: currentUser } = useSelector((state) => state.auth);
-    const { userList } = useSelector((state) => state.users);
+    const  userList = useSelector((state) => state.users?.userList);
     const [rule, setRule] = useState();
     const [keyword, setKeyword] = useState();
 
-    useLayoutEffect(() => {
-        dispatch(thunkUser.getUserThunks({ per_page: DEFAULT_PER_PAGE, page: DEFAULT_PAGE }));
+    useEffect(() => {
+        dispatch(thunkUser.getUserThunks({ per_page: config.DEFAULT_PER_PAGE , page: config.DEFAULT_PAGE }));
     }, []);
-
+    console.log(userList);
     const onChangeRule = (e) => {
 
         const rule = e.target.value;
@@ -28,24 +27,26 @@ const UsersComponent = (props) => {
         const keyword = e.target.value;
         setKeyword(keyword);
     }
+
+    // search user
     const onClickSearch = (e) => {
 
         dispatch(thunkUser.getUserFillter({ rule, keyword }));
     }
-    console.log({ userList });
+  
 
+    // check user login
     if (!currentUser) {
         return <Redirect to="/login" />;
     }
 
     // duplicate user
-
     const onClickDuplicate = (id) => {
 
         dispatch(thunkUser.dupUserById({ userId: id }))
             .then(() => {
                 props.history.push('/');
-                window.location.reload();
+                dispatch(thunkUser.getUserThunks({ per_page: config.DEFAULT_PER_PAGE, page: config.DEFAULT_PAGE }));
             });
 
     }
@@ -56,7 +57,7 @@ const UsersComponent = (props) => {
         dispatch(thunkUser.unlockUserById({ userId: id }))
             .then(() => {
                 props.history.push('/');
-                window.location.reload();
+                dispatch(thunkUser.getUserThunks({ per_page: config.DEFAULT_PER_PAGE, page: config.DEFAULT_PAGE }));
             });
 
     }
@@ -66,7 +67,7 @@ const UsersComponent = (props) => {
         dispatch(thunkUser.lockUserById({ userId: id }))
             .then(() => {
                 props.history.push('/');
-                window.location.reload();
+                dispatch(thunkUser.getUserThunks({ per_page: config.DEFAULT_PER_PAGE, page: config.DEFAULT_PAGE }));
             });
 
     }
@@ -152,7 +153,7 @@ const UsersComponent = (props) => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        { userList && userList?.data?.map(
+                                        {   Array.isArray(userList?.data) && userList?.data?.map(
                                             ({ id, name, avatar, phone, adress, status }, index, array) => (
                                                 <tr key={index}>
                                                     <td>{id}</td>
@@ -186,4 +187,4 @@ const UsersComponent = (props) => {
         </div>
     );
 }
-export default UsersComponent;
+export default HomePage;
